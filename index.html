@@ -41,32 +41,142 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h1>Tachyon</h1>
-					<h3>In Memory Processing</h3>
+					<h3>Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h3>
+					<!-- <h3>In Memory Processing</h3> -->
+					<div class="footer">
 					<p>
-						<small>Created by Saverio Veltri / <a href="http://twitter.com/save_veltri">@save_veltri</a></small>
+						<small>Created by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
 					</p>
+				</div>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						## Who am I?
+						#### Saverio Veltri
+
+						- Computer science MD (Polimi)
+
+						- 8 years experience (java, scala, big data)
+
+						- Software Engineer @ Radicalbit.io
+
+					</script>
 				</section>
 
 				<section>
 					<h2>Big data</h2>
 					<p>
-						explanation 
+						explanation
+					</p>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##Fast Data: What And Why
+						- What  
+						Fast data is about being able to try as many strategies as
+						fast as possible to get quick feedback in order to learn
+						and act as soon as possible
+						- Why  
+						Fast data gives organizations the ability to test, experiment and fail forward faster, by cycling through
+						these tests at a higher speed, in order to learn and succeed quicker
+					</script>
+				</section>
+
+				<section data-markdown style="font-size: 0.9em">
+					<script type="text/template">
+					##FAST DATA REQUIREMENTS
+					- DATA SOURCE AND DATA SYNC CONNECTORS
+						Read, Write and Combine multiple heterogeneous data sources or data destination via a common interface.
+					- BATCH AND PIPELINE PROCESSIONG
+						Non continuous (non-realtime) processing of massive amount of data from start to completition
+					- REAL TIME STREAMING
+						Process AND Aggregate real time events, data streams or sensor data
+					- OLAP PROCESSING
+						Support for analytical/information processing involving complext queries and aggregations
+					- IN-MEMORY PROCESSING  <!-- .element: class="fragment highlight-red" -->
+						Use memory for speed, staging and sharing data across jobs
+					- DISTRIBUTE I/O INTESIVE STORAGE
+						Support for fast, intensive and scalable read and writes
+				  </script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						## Why IN MEMORY PROCESSING
+						- Pros
+							- Cost / capacity of Memory is lower and lower, which makes it possible to handle huge size of data in memory
+							- Throughput of RAM is increasing exponentially
+							- Many computation frameworks (e.g. Spark and Flink)leverage memory
+						- Cons
+							- GC
+							- Data sharing across frameworks
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##IN MEMORY PROCESSING: throughput
+						<img width="60%" height="60%" data-src="images/memory_throughput.jpg">
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##IN MEMORY PROCESSING: Cost
+						<img width="60%" height="60%" data-src="images/memory_cost.png">
+					</script>
+				</section>
+				
+				<section data-markdown>					
+					##IN MEMORY PROCESSING: Known Problems
+					- GC: dealing with heap brings also Garbace collector which can slow jobs or even cause failures
+					- Data sharing across frameworks: objects in heap must be serialized and deserialized somehow in order to be
+					shared across frameworks
+					- Replication Fault Tolerance
+				</section>
+				
+				<section data-markdown>
+					<script type="text/template">
+						##spark memory management
+						temporary data <!-- .element: class="fragment" -->
+						block manager <!-- .element: class="fragment" -->						
+						<pre><code class="scala fragment" data-trim contenteditable>
+							def persist(newLevel: StorageLevel): this.type
+						</code></pre>
+						<pre><code class="scala fragment" data-trim contenteditable>
+							class StorageLevel private(
+  private var _useDisk: Boolean,
+  private var _useMemory: Boolean,
+  private var _useOffHeap: Boolean,
+  private var _deserialized: Boolean,
+  private var _replication: Int = 1)
+						</code></pre>
+					</script>
+				</section>
+
+
+				<section>
+					<h2>AmpLab BDASS</h2>
+					<p>
+						BDAS, the Berkeley Data Analytics Stack, is an open source software stack that integrates software 
+						components being built by the AMPLab to make sense of Big Data.
+						<img width="60%" height="60%" data-src="images/bdass.png">
 					</p>
 				</section>
 
 				<section>
-					<h2>Fast Data</h2>
-					<p>
-						explanation 
-					</p>
+					<h2>Tachyon</h2>
+					<blockquote>
+						&ldquo;Tachyon is a memory-centric distributed storage system 
+						enabling reliable data sharing at memory-speed across cluster frameworks.&rdquo;
+					</blockquote>					
 				</section>
 
 				<section>
-					<h2>AmpLab</h2>
-					<p>
-						bdass
-					</p>
+					<h2>Tachyon architecture</h2>
+					<img width="60%" height="60%" data-src="images/tachyon_architecture.png">
 				</section>
 
 				<section>
@@ -75,56 +185,7 @@
 						bdass
 					</p>
 				</section>
-
-				<!-- Example of nested vertical slides -->
-				<section>
-					<section>
-						<h2>Vertical Slides</h2>
-						<p>Slides can be nested inside of each other.</p>
-						<p>Use the <em>Space</em> key to navigate through all slides.</p>
-						<br>
-						<a href="#" class="navigate-down">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-						</a>
-					</section>
-					<section>
-						<h2>Basement Level 1</h2>
-						<p>Nested slides are useful for adding additional detail underneath a high level horizontal slide.</p>
-					</section>
-					<section>
-						<h2>Basement Level 2</h2>
-						<p>That's it, time to go back up.</p>
-						<br>
-						<a href="#/2">
-							<img width="178" height="238" data-src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Up arrow" style="transform: rotate(180deg); -webkit-transform: rotate(180deg);">
-						</a>
-					</section>
-				</section>
-
-				<section>
-					<h2>Slides</h2>
-					<p>
-						Not a coder? Not a problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slides.com" target="_blank">http://slides.com</a>.
-					</p>
-				</section>
-
-				<section>
-					<h2>Point of View</h2>
-					<p>
-						Press <strong>ESC</strong> to enter the slide overview.
-					</p>
-					<p>
-						Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-					</p>
-				</section>
-
-				<section>
-					<h2>Touch Optimized</h2>
-					<p>
-						Presentations look great on touch devices, like mobile phones and tablets. Simply swipe through your slides.
-					</p>
-				</section>
-
+				
 				<section data-markdown>
 					<script type="text/template">
 						## Markdown support
@@ -412,6 +473,7 @@ Reveal.addEventListener( 'customevent', function() {
 				progress: true,
 				history: true,
 				center: true,
+				slideNumber: true,
 
 				transition: 'slide', // none/fade/slide/convex/concave/zoom
 
