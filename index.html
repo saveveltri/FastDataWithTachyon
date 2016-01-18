@@ -41,8 +41,7 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h3>Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h3>
-					<!-- <h3>In Memory Processing</h3> -->
+					<h2>Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h2>
 					<div class="footer">
 					<p>
 						<small>Created by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
@@ -59,17 +58,23 @@
 
 						- 8 years experience (java, scala, big data)
 
-						- Software Engineer @ Radicalbit.io
+						- Software Engineer (Java / Scala) @ <a target="_blank" href="http://www.radicalbit.io">Radicalbit.io</a>
+						
+						- <a href="https://www.linkedin.com/in/saveveltri" target="_blank">/in/saveveltri</a>
+						
+						- <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a>
+						
+						- <a target="_blank" href="https://twitter.com/weareradicalbit">@weareradicalbit</a>
 
 					</script>
 				</section>
 
-				<section>
+				<!-- <section>
 					<h2>Big data</h2>
 					<p>
 						explanation
 					</p>
-				</section>
+				</section> -->
 
 				<section data-markdown>
 					<script type="text/template">
@@ -84,7 +89,7 @@
 					</script>
 				</section>
 
-				<section data-markdown style="font-size: 0.9em">
+				<section data-markdown style="font-size: 0.8em">
 					<script type="text/template">
 					##FAST DATA REQUIREMENTS
 					- DATA SOURCE AND DATA SYNC CONNECTORS
@@ -156,22 +161,25 @@
 					</script>
 				</section>
 
-
-				<section>
-					<h2>AmpLab BDASS</h2>
-					<p>
-						BDAS, the Berkeley Data Analytics Stack, is an open source software stack that integrates software 
-						components being built by the AMPLab to make sense of Big Data.
-						<img width="60%" height="60%" data-src="images/bdass.png">
-					</p>
-				</section>
-
 				<section>
 					<h2>Tachyon</h2>
 					<blockquote>
 						&ldquo;Tachyon is a memory-centric distributed storage system 
 						enabling reliable data sharing at memory-speed across cluster frameworks.&rdquo;
 					</blockquote>					
+				</section>
+				
+				<section>
+					<h2>AmpLab BDASS</h2>
+					<blockquote>
+						&ldquo;BDAS, the Berkeley Data Analytics Stack, is an open source software stack that integrates software 
+						components being built by the AMPLab to make sense of Big Data.&rdquo;
+					</blockquote>
+				</section>
+				
+				<section>
+					<h2>AmpLab BDASS</h2>
+					<img width="90%" height="90%" data-src="images/bdass.png">
 				</section>
 
 				<section>
@@ -214,12 +222,12 @@
 					##underfs
 					Tachyon relys on some other storage system to safely store the data
 					Supported file system:
+					- Local
 					- HDFS
 					- S3
 					- Swift
-					- GlusterFS
-					- FuseFS (new!)
-					- your own implementation: It is only an interface to implement!
+					- GlusterFS			
+					- your own implementation: `extends tachyon.underfs.UnderFileSystem`
 				</section>	
 				
 				<section data-markdown>
@@ -287,14 +295,15 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 
 				<section data-markdown style="font-size: 0.8em">
 					<script type="text/template">
-						##Allocators (COMING SOON)
+						##Allocators
 						Tachyon uses allocators for choosing locations for writing new blocks. Tachyon has a framework for customized allocators, but there are a few default implementations of allocators. Here are the existing allocators in Tachyon:
-						- GreedyAllocator  
-						Allocates the new block to the first storage directory that has sufficient space.
-						- MaxFreeAllocator  
-						Allocates the block in the storage directory with most free space.
-						- RoundRobinAllocator  
-						Allocates the block in the highest tier with space, the storage directory is chosen through round robin.
+						- `GreedyAllocator`: Allocates the new block to the first storage directory that has sufficient space.
+						- `MaxFreeAllocator`: Allocates the block in the storage directory with most free space.
+						- `RoundRobinAllocator` Allocates the block in the highest tier with space, the storage directory is chosen through round robin.
+						- Your own implementation 
+						```
+						implements tachyon.worker.block.allocator.Allocator
+						```
 						```
 						tachyon.worker.allocator.class=tachyon.worker.block.allocator.MaxFreeAllocator
 						```
@@ -303,16 +312,13 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 				
 				<section data-markdown style="font-size: 0.8em">
 					<script type="text/template">
-						##Evictors (COMING SOON)
+						##Evictors
 						Tachyon uses evictors for deciding which blocks to move to a lower tier, when space needs to be freed. Tachyon supports custom evictors, and implementations include:
-						- GreedyEvictor
-						Evicts arbitrary blocks until the required size is freed.
-						- LRUEvictor
-						Evicts the least-recently-used blocks until the required size is freed.
-						- LRFUEvictor
-						Evicts blocks based on least-recently-used and least-frequently-used with a configurable weight. If the weight is completely biased toward least-recently-used, the behavior will be the same as the LRUEvictor.
-						- PartialLRUEvictor
-						Evicts based on least-recently-used but will choose StorageDir with maximum free space and only evict from that StorageDir.
+						- `GreedyEvictor`: Evicts arbitrary blocks until the required size is freed.
+						- `LRUEvictor`: Evicts the least-recently-used blocks until the required size is freed.
+						- `LRFUEvictor`: Evicts blocks based on least-recently-used and least-frequently-used with a configurable weight. If the weight is completely biased toward least-recently-used, the behavior will be the same as the LRUEvictor.
+						- `PartialLRUEvictor`: Evicts based on least-recently-used but will choose StorageDir with maximum free space and only evict from that StorageDir.
+						- Your own implementation ```implements tachyon.worker.block.evictor```
 						```
 						tachyon.worker.evictor.class=tachyon.worker.block.evictor.LRUEvictor
 						```
@@ -338,9 +344,20 @@ With lineage, applications write output into memory, and Tachyon periodically ch
 					##Transparent naming
 					
 				</section>
+				<section>
+					<h2>Unified Namespace</h2>
+					<img width="80%" height="80%" data-src="images/unified.png">
+				</section>
+				
 				<section data-markdown>
-					##Unified Namespace
-					
+					##Tachyon shell
+					- provides basic file system operations (ls, rm, cat, mv, tail, touch etc.)
+					- provides "special" operation
+						- persist: persists data from Tachyon storage to the under fs
+						- pin / unpin: marks / unmarsk a file or folder as pinned in Tachyon (i.e. no eviction will be applied)
+						- load: load data from under storage into Tachyon storage
+						- report: marks a file as lost to the Tachyon master. Marking a file as lost will cause the
+							master to schedule a recomputation job to regenerate the file.
 				</section>
 				
 				<section data-markdown>
@@ -350,9 +367,20 @@ $ java -cp
 SW/tachyon-0.8.2/assembly/target/tachyon-assemblies-0.8.2-jar-with-dependencies.jar 
 -Dtachyon.master.hostname=backpressure-master 
 tachyon.shell.TfsShell copyFromLocal icla.pdf /
-```
-					
-				</section>				 				 
+```					
+				</section>
+				
+				<section data-markdown>
+					demo report lineage
+				</section>
+				
+				<section data-markdown>
+					#Q &amp; A ?
+				</section>
+				
+				<section data-markdown>
+					#THANK YOU!
+				</section>
 
 				<section>
 					<section id="fragments">
