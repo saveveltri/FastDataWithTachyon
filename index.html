@@ -218,7 +218,6 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 
 				<section data-markdown>
 					##Master
-					Tachyon may be deployed in one of two master modes, single master or multiple masters (one primary plus standbys). 
 					The master is primarily responsible for managing the global metadata of the system, for example, the file system tree. 
 					Clients may interact with the master to read or modify this metadata. 
 					In addition, all workers periodically heartbeat to the master to maintain their participation in the cluster. 
@@ -359,22 +358,29 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 					Tachyon can achieve high throughput writes and reads, without compromising fault-tolerance by using Lineage, where lost output is recovered by re-executing the jobs that created the output.
 
 With lineage, applications write output into memory, and Tachyon periodically checkpoints the output into the under file system in an asynchronous fashion. In case of failures, Tachyon launches job recomputation to restore the lost files. Lineage assumes that jobs are deterministic so that the recomputed outputs are identical. If this assumption is not met, it is up to the application to handle divergent outputs.
-
-
+				</section>
+				
+				<section>
+					<h2>lineage</h2>
+					<img width="70%" height="70%" data-src="images/tachyon-lineage.png">
+					<img class="fragment" width="70%" height="70%" data-src="images/tachyon-lineage2.jpg">
 				</section>
 				
 				<section>
 					<h2>Transparent Naming</h2>
 					<p>Transparent naming maintains an identity between the Tachyon namespace and the underlying storage system namespace.</p>
-					<img width="60%" height="60%" data-src="images/transparent.png">
+					<img width="70%" height="70%" data-src="images/transparent.png">
 				</Section>
 
 				<section data-markdown>
 					##Transparent naming
-					
+					- object paths are preserved.  
+					 if a user creates a top-level directory Users with subdirectories Alice and Bob, the directory structure and naming is preserved in the underlying storage system (e.g. HDFS or S3)
+					- Tachyon transparently discovers content present in the underlying storage system which was not created through Tachyon. For instance, if the underlying storage system contains a directory Data with files Reports and Sales, all of which were not created through Tachyon, their metadata will be loaded into Tachyon the first time they are accessed 
 				</section>
 				<section>
 					<h2>Unified Namespace</h2>
+					- Tachyon provides a mounting API that makes it possible to use Tachyon to access data across multiple data sources.
 					<img width="80%" height="80%" data-src="images/unified.png">
 				</section>
 				
