@@ -187,6 +187,11 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 					</code></pre>
 				</section>
 
+				<!-- <section data-markdown>
+					##spark job server
+					The Spark Job Server provides a RESTful frontend for the submission and management of Apache Spark jobs. It facilitates sharing of jobs and RDD data in a single context, but can also manage standalone jobs. Job history and configuration is persisted.
+				</section> -->
+	
 				<section>
 					<h2>Tachyon</h2>
 					<blockquote>
@@ -215,53 +220,57 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 
 				<section data-markdown>
 					##Master
-					The master is primarily responsible for managing the global metadata of the system, for example, the file system tree. 
-					Clients may interact with the master to read or modify this metadata. 
-					In addition, all workers periodically heartbeat to the master to maintain their participation in the cluster. 
-					The master does not initiate communication with other components; 
-					it only interacts with other components by responding to requests.
+					- responsible for managing the global metadata of the system, for example, the file system tree. 
+					- Clients endpoint for reading or modifying this metadata. 
+					- all workers periodically heartbeat to the master to maintain their participation in the cluster. 
+					- The master does not initiate communication with other components; it only interacts with other components by responding to requests.
 				</section>				
 
 				<section data-markdown>
 					##Worker
-					Tachyon workers are responsible for managing local resources allocated to Tachyon. 
+					- responsible for managing local resources allocated to Tachyon. 
 					These resources could be local memory, SSD, or hard disk and are user configurable. 
-					Tachyon workers store data as blocks and serve requests from clients to read or write data by reading or creating new blocks. 
+					- store data as blocks and serve requests from clients to read or write data by reading or creating new blocks. 
 					However, the worker is only responsible for the data in these blocks; the actual mapping from file to blocks is only stored in the master.
 				</section>
 				
 				<section data-markdown>
 					##Client
-					The Tachyon client provides users a gateway to interact with the Tachyon servers. 
-					It exposes a file system API. It initiates communication with master to carry out metadata operations 
+					- provides users a gateway to interact with the Tachyon servers. 
+					- exposes a file system API. It initiates communication with master to carry out metadata operations 
 					and with workers to read and write data that exist in Tachyon. 
 					Data that exists in the under storage but is not available in Tachyon is accessed directly through an under storage client.
 				</section>
 				
 				<section>
 					<h2>Tachyon architecture</h2>
-					<img width="60%" height="60%" data-src="images/tachyon_system_architecture.png">
+					<img width="80%" height="80%" data-src="images/tachyon_system_architecture.png">
 				</section>
 				
 				<section data-markdown>
 					##Storage types
 					- Tachyon Storage  
 						- multi layer (tiered storage) for storing user files 
-						- volatile
-						- accessible by schema tachyon://file.ext
+						- may be volatile
+						- accessible by schema tachyon://[path]
 					- Underfs storage: 3rd party file system used for persisting tachyon journal, lineage and eventually for sync user files
 				</section>
 				
 				<section data-markdown>
+					<script type="text/template">
 					##underfs
-					Tachyon relys on some other storage system to safely store the data
+					Tachyon relys on some other storage system to safely store metadata and user data (if configured)  
 					Supported file system:
 					- Local
 					- HDFS
 					- S3
 					- Swift
 					- GlusterFS			
-					- your own implementation: `extends tachyon.underfs.UnderFileSystem`
+					- your own implementation:  
+					```
+					extends tachyon.underfs.UnderFileSystem
+					```
+				</script>
 				</section>	
 				
 				<section data-markdown>
@@ -377,6 +386,24 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 					<h2>lineage</h2>
 					<img width="70%" height="70%" data-src="images/tachyon-lineage.png">
 					<img class="fragment" width="70%" height="70%" data-src="images/tachyon-lineage2.jpg">
+				</section>
+				
+				<section data-markdown>
+					##Lineage API
+					```
+TachyonLineage tl = TachyonLineage.get();
+// input file paths
+TachyonURI input1 = new TachyonURI("/inputFile1");
+TachyonURI input2 = new TachyonURI("/inputFile2");
+List<TachyonURI> inputFiles = Lists.newArrayList(input1, input2);
+// output file paths
+TachyonURI output = new TachyonURI("/outputFile");
+List<TachyonURI> outputFiles = Lists.newArrayList(output);
+// command-line job
+JobConf conf = new JobConf("/tmp/recompute.log");
+CommandLineJob job = new CommandLineJob("my-spark-job.sh", conf);
+long lineageId = tl.createLineage(inputFiles, outputFiles, job);
+					```
 				</section>
 				
 				<section>
