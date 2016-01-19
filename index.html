@@ -142,23 +142,52 @@
 					- Replication Fault Tolerance
 				</section>
 				
-				<section data-markdown>
-					<script type="text/template">
-						##spark memory management
-						- temporary data   <!-- .element: class="fragment" -->
-						- block manager <!-- .element: class="fragment" -->						
-						<pre><code class="scala fragment" data-trim contenteditable>
-							def persist(newLevel: StorageLevel): this.type
-						</code></pre>
-						<pre><code class="scala fragment" data-trim contenteditable>
-							class StorageLevel private(
-  private var _useDisk: Boolean,
-  private var _useMemory: Boolean,
-  private var _useOffHeap: Boolean,
-  private var _deserialized: Boolean,
-  private var _replication: Int = 1)
-						</code></pre>
-					</script>
+				<section>
+					<h2>ex. spark memory management</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Excecution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">Temporary data and block manager are in the same process</li>
+							<li class="fragment">GC involved in both of them</li>
+							<li class="fragment">Share data between jobs using fs</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/hdfs-s3.png"></img></div>						
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Excecution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">Execution engine and storage engine are different process</li>
+							<li class="fragment">GC involved only in excecution engine</li>
+							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/tachyon-blocks.png"></img></div>
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+					<pre><code data-trim contenteditable>
+						def persist(newLevel: StorageLevel): this.type
+					</code></pre>
+					<pre><code data-trim contenteditable>
+						class StorageLevel private(
+private var _useDisk: Boolean,
+private var _useMemory: Boolean,
+private var _useOffHeap: Boolean,
+private var _deserialized: Boolean,
+private var _replication: Int = 1)
+					</code></pre>
+					<pre class="fragment"><code data-trim contenteditable>
+testRdd.persist(StorageLevel.OFF_HEAP)
+					</code></pre>
 				</section>
 
 				<section>
