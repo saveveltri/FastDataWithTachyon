@@ -47,6 +47,9 @@
 						<small>Created by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
 					</p>
 				</div>
+				<aside class="notes">
+        	Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
+    		</aside>
 				</section>
 
 				<section data-markdown>
@@ -142,7 +145,7 @@
 				<section>
 					<h2>ex. spark memory management</h2>
 						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
-						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Excecution engine</p>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
 						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
 										
 						<ul style="position:absolute; top:10em; left:1em;">
@@ -157,12 +160,12 @@
 				<section>
 					<h2>ex. spark off_heap storage</h2>
 						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
-						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Excecution engine</p>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
 						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
 										
 						<ul style="position:absolute; top:10em; left:1em;">
 							<li class="fragment">Execution engine and storage engine are different process</li>
-							<li class="fragment">GC involved only in excecution engine</li>
+							<li class="fragment">GC involved only in execution engine</li>
 							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
 						</ul>
 
@@ -214,8 +217,17 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 				</section>
 
 				<section>
-					<h2>Tachyon architecture</h2>
-					<img width="60%" height="60%" data-src="images/tachyon_architecture.png">
+					<section>
+						<h2>Tachyon architecture</h2>
+						<img width="60%" height="60%" data-src="images/tachyon_architecture.png">
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							##Zookeeper
+							- Zookeeper does not implement a master / slave architecture, a leader node is elected every time cluster is started up.
+							<img width="80%" height="80%" data-src="images/zookeeper_arch.png">
+						</script>
+					</section>
 				</section>
 
 				<section data-markdown>
@@ -244,7 +256,7 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 				
 				<section>
 					<h2>Tachyon architecture</h2>
-					<img width="80%" height="80%" data-src="images/tachyon_system_architecture.png">
+					<img width="80%" height="80%" data-src="images/tachyon-system-architecture.jpg">
 				</section>
 				
 				<section data-markdown>
@@ -294,11 +306,11 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 				</section>
 				
 				<section data-markdown>
-					##Tiered Storage
-					Tiers are fully configurable; here a typical scenario 
-					- MEM (Memory)
-					- SSD (Solid State Drives)
-					- HDD (Hard Disk Drives)
+					<script type="text/template">
+						##Tiered Storage
+						Tiers are fully configurable; here a typical scenario 
+						<img width="80%" height="80%" data-src="images/tiered.png">
+					</script>
 				</section>
 
 				<section data-markdown>
@@ -310,11 +322,6 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 					##Reading Data
 					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.
 					Reading data with the TachyonStorageType.PROMOTE will ensure the data is first transferred to the top tier before it is read from the worker. This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
-				</section>
-				
-				<section>
-					<h2>Tiered Storage</h2>
-					<img width="80%" height="80%" data-src="images/tiered.png">
 				</section>
 				
 				<section data-markdown>
