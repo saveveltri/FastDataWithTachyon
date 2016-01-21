@@ -41,10 +41,10 @@
 			<!-- Any section element inside of this container is displayed as a slide -->
 			<div class="slides">
 				<section>
-					<h2>Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h2>
+					<h2 style="color: #fff !important;">Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h2>
 					<div class="footer">
 					<p>
-						<small>Created by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
+						<small>by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
 					</p>
 				</div>				
 				</section>
@@ -84,7 +84,7 @@
 
 				<section data-markdown style="font-size: 0.8em">
 					<script type="text/template">
-					##FAST DATA REQUIREMENTS
+					##FAST DATA NON FUNCTIONAL REQUIREMENTS
 					- DATA SOURCE AND DATA SYNC CONNECTORS  
 						Read, Write and Combine multiple heterogeneous data sources or data destination via a common interface.
 					- BATCH AND PIPELINE PROCESSIONG  
@@ -95,8 +95,9 @@
 						Support for analytical/information processing involving complext queries and aggregations
 					- IN-MEMORY PROCESSING  <!-- .element: class="fragment highlight-red" -->
 						Use memory for speed, staging and sharing data across jobs
-					- DISTRIBUTE I/O INTESIVE STORAGE  
-						Support for fast, intensive and scalable read and writes
+					- DISTRIBUTED COMPUTING
+					- INTENSIVE I/O
+					
 				  </script>
 					<aside class="notes">
 					</aside>
@@ -108,7 +109,7 @@
 						- Pros
 							- Cost / capacity of Memory is lower and lower, which makes it possible to handle huge size of data in memory
 							- Throughput of RAM is increasing exponentially
-							- Many computation frameworks (e.g. Spark and Flink)leverage memory
+							- Many computation frameworks (e.g. Spark and Flink) leverage memory
 						- Cons
 							- GC
 							- Data sharing across frameworks
@@ -136,7 +137,7 @@
 							dealing with heap brings also Garbace collector which can slow jobs or even cause failures <!-- .element: class="fragment" -->
 						- Data sharing across frameworks:  <!-- .element: class="fragment" -->
 							objects in heap must be serialized and deserialized somehow in order to be shared across frameworks <!-- .element: class="fragment" -->
-						- Replication Fault Tolerance <!-- .element: class="fragment" -->
+						- Fault Tolerance (replication ?) <!-- .element: class="fragment" -->
 						- What if data does not fit memory size? <!-- .element: class="fragment" -->
 					</script>
 				</section>
@@ -155,7 +156,7 @@
 				</section>
 				
 				<section>
-					<h2>AmpLab BDASS</h2>
+					<h2>AmpLab BDAS</h2>
 					<blockquote>
 						&ldquo;BDAS, the Berkeley Data Analytics Stack, is an open source software stack that integrates software 
 						components being built by the AMPLab to make sense of Big Data.&rdquo;
@@ -163,7 +164,7 @@
 				</section>
 				
 				<section>
-					<h2>AmpLab BDASS</h2>
+					<h2>AmpLab BDAS</h2>
 					<img width="90%" height="90%" data-src="images/bdass.png">
 				</section>
 
@@ -175,7 +176,7 @@
 					<section data-markdown>
 						<script type="text/template">
 							##Zookeeper
-							- Zookeeper does not implement a master / slave architecture, a leader node is elected every time cluster is started up.
+							- Zookeeper is a frameword used to achieve fault tolerance; a leader node is elected every time cluster is started up.
 							<img width="80%" height="80%" data-src="images/zookeeper_arch.png">
 						</script>
 					</section>
@@ -317,7 +318,11 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 				
 				<section data-markdown>
 					##Reading Data
-					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.
+					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.					
+				</section>
+				
+				<section data-markdown>
+					##Block Promotion
 					Reading data with the TachyonStorageType.PROMOTE will ensure the data is first transferred to the top tier before it is read from the worker. This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
 				</section>
 
@@ -437,9 +442,9 @@ tachyon.shell.TfsShell copyFromLocal icla.pdf /
 						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
 										
 						<ul style="position:absolute; top:10em; left:1em;">
-							<li class="fragment">Temporary data and block manager are in the same process</li>
+							<li class="fragment">Temporary data and block manager are in the same spark job</li>
 							<li class="fragment">GC involved in both of them</li>
-							<li class="fragment">Share data between jobs using fs</li>
+							<li class="fragment">Share data between jobs using file system</li>
 						</ul>
 
 						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/hdfs-s3.png"></img></div>						
