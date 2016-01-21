@@ -287,17 +287,6 @@
 				</section>
 
 				<section data-markdown>
-					##Writing Data
-					When a user writes a new block, it is written to the top tier by default (a custom allocator can be used if the default behavior is not desired). If there is not enough space for the block in the top tier, then the evictor is triggered in order to free space for the new block.
-				</section>
-				
-				<section data-markdown>
-					##Reading Data
-					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.
-					Reading data with the TachyonStorageType.PROMOTE will ensure the data is first transferred to the top tier before it is read from the worker. This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
-				</section>
-				
-				<section data-markdown>
 					<script type="text/template">
 						##Configuring tiered storage
 						<pre><code class="scala" data-trim contenteditable>
@@ -319,6 +308,17 @@ tachyon.worker.tieredstore.level1.dirs.quota=2TB,5TB,500GB
 tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 						</code></pre>				
 					</script>
+				</section>
+
+				<section data-markdown>
+					##Writing Data
+					When a user writes a new block, it is written to the top tier by default (a custom allocator can be used if the default behavior is not desired). If there is not enough space for the block in the top tier, then the evictor is triggered in order to free space for the new block.
+				</section>
+				
+				<section data-markdown>
+					##Reading Data
+					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.
+					Reading data with the TachyonStorageType.PROMOTE will ensure the data is first transferred to the top tier before it is read from the worker. This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
 				</section>
 
 				<section data-markdown style="font-size: 0.8em">
@@ -396,7 +396,7 @@ long lineageId = tl.createLineage(inputFiles, outputFiles, job);
 						##Transparent naming
 						- object paths are replicated in under fs.  						 
 						- Files in the underfs are transparently discovered even if they were not created through Tachyon  
-						their metadata will be loaded into Tachyon the first time they are accessed 
+						their metadata will be loaded in memory the first time they are accessed 
 					</script>
 					<aside class="notes">
 						if a user creates a top-level directory Users with subdirectories Alice and Bob, the directory structure and naming is preserved in the underlying storage system (e.g. HDFS or S3)
