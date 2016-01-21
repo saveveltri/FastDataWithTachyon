@@ -73,9 +73,7 @@
 					<script type="text/template">
 						##Fast Data: What And Why
 						- What  
-						Fast data is about being able to try as many strategies as
-						fast as possible to get quick feedback in order to learn
-						and act as soon as possible
+						The evolution of Big Data (Volume, Velocity, Variety, Veracity) with focus on streaming technologies capable of delivering, processing, analyzing and storing events as fast as they come in. In Real Time.
 						- Why  
 						Fast data gives organizations the ability to test, experiment and fail forward faster, by cycling through
 						these tests at a higher speed, in order to learn and succeed quicker
@@ -95,9 +93,8 @@
 						Support for analytical/information processing involving complext queries and aggregations
 					- IN-MEMORY PROCESSING  <!-- .element: class="fragment highlight-red" -->
 						Use memory for speed, staging and sharing data across jobs
-					- DISTRIBUTED COMPUTING
-					- INTENSIVE I/O
-					
+					- DISTRIBUTED INTENSIVE I/O  
+						Support for fast, intensive and scalable read and writes					
 				  </script>
 					<aside class="notes">
 					</aside>
@@ -270,7 +267,7 @@
 						##Tiered Storage
 						- Tachyon manages other storage types in addition to memory, 
 						since its capacity may be limited in some deployments.  
-						- Tachyon automatically manages blocks between all the configured tiers, 
+						- Tachyon automatically manages blocks between all the configured tiers
 					</script>
 					<aside class="notes">
 						so users and administrators do not have to manually manage the locations of the data. 
@@ -412,6 +409,10 @@ long lineageId = tl.createLineage(inputFiles, outputFiles, job);
 					<h2>Unified Namespace</h2>
 					- Tachyon provides a mounting API that makes it possible to use Tachyon to access data across multiple data sources.
 					<img width="80%" height="80%" data-src="images/unified.png">
+					<pre><code>
+bool mount(String tachyonPath, String ufsPath);
+bool unmount(String tachyonPath);
+					</code></pre>
 				</section>
 				
 				<section data-markdown>
@@ -457,7 +458,7 @@ tachyon.shell.TfsShell copyFromLocal icla.pdf /
 						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
 										
 						<ul style="position:absolute; top:10em; left:1em;">
-							<li class="fragment">Execution engine and storage engine are different process</li>
+							<li class="fragment">storage engine stores data in a different process</li>
 							<li class="fragment">GC involved only in execution engine</li>
 							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
 						</ul>
@@ -484,7 +485,7 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 				</section>
 				
 				<section data-markdown>
-					demo off_heap
+					###demo
 				</section>
 				
 				<section data-markdown>
