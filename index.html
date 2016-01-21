@@ -228,7 +228,7 @@
 						- multi layer (tiered storage) for storing user files 
 						- may be volatile
 						- accessible by schema tachyon://[path]
-					- Underfs storage: 3rd party file system used for persisting tachyon journal, lineage and eventually for sync user files
+					- Underfs storage: 3rd party file system used for persisting tachyon journal, lineage and eventually for user files sync 
 				</section>
 				
 				<section data-markdown>
@@ -320,7 +320,8 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 				
 				<section data-markdown>
 					##Block Promotion
-					Reading data with the TachyonStorageType.PROMOTE will ensure the data is first transferred to the top tier before it is read from the worker. This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
+					Reading data with `TachyonStorageType.PROMOTE` configuration will ensure the data is first transferred to the top tier before it is read from the worker.  
+					This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
 				</section>
 
 				<section data-markdown style="font-size: 0.8em">
