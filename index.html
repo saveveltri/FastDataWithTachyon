@@ -46,10 +46,7 @@
 					<p>
 						<small>Created by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
 					</p>
-				</div>
-				<aside class="notes">
-        	Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-    		</aside>
+				</div>				
 				</section>
 
 				<section data-markdown>
@@ -101,6 +98,8 @@
 					- DISTRIBUTE I/O INTESIVE STORAGE  
 						Support for fast, intensive and scalable read and writes
 				  </script>
+					<aside class="notes">
+					</aside>
 				</section>
 
 				<section data-markdown>
@@ -140,54 +139,6 @@
 						- Replication Fault Tolerance <!-- .element: class="fragment" -->
 						- What if data does not fit memory size? <!-- .element: class="fragment" -->
 					</script>
-				</section>
-				
-				<section>
-					<h2>ex. spark memory management</h2>
-						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
-						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
-						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
-										
-						<ul style="position:absolute; top:10em; left:1em;">
-							<li class="fragment">Temporary data and block manager are in the same process</li>
-							<li class="fragment">GC involved in both of them</li>
-							<li class="fragment">Share data between jobs using fs</li>
-						</ul>
-
-						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/hdfs-s3.png"></img></div>						
-				</section>
-				
-				<section>
-					<h2>ex. spark off_heap storage</h2>
-						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
-						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
-						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
-										
-						<ul style="position:absolute; top:10em; left:1em;">
-							<li class="fragment">Execution engine and storage engine are different process</li>
-							<li class="fragment">GC involved only in execution engine</li>
-							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
-						</ul>
-
-						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/tachyon-blocks.png"></img></div>
-				</section>
-				
-				<section>
-					<h2>ex. spark off_heap storage</h2>
-					<pre><code data-trim contenteditable>
-						def persist(newLevel: StorageLevel): this.type
-					</code></pre>
-					<pre><code data-trim contenteditable>
-						class StorageLevel private(
-private var _useDisk: Boolean,
-private var _useMemory: Boolean,
-private var _useOffHeap: Boolean,
-private var _deserialized: Boolean,
-private var _replication: Int = 1)
-					</code></pre>
-					<pre class="fragment"><code data-trim contenteditable>
-testRdd.persist(StorageLevel.OFF_HEAP)
-					</code></pre>
 				</section>
 
 				<!-- <section data-markdown>
@@ -231,27 +182,41 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 				</section>
 
 				<section data-markdown>
-					##Master
-					- responsible for managing the global metadata of the system, for example, the file system tree. 
-					- Clients endpoint for reading or modifying this metadata. 
-					- all workers periodically heartbeat to the master to maintain their participation in the cluster. 
-					- The master does not initiate communication with other components; it only interacts with other components by responding to requests.
+					<script type="text/template">
+						##Master
+						- Manage the global metadata of the system
+						- Clients endpoint for reading or modifying this metadata. 
+						- all workers periodically heartbeat to the master
+					</script>
+					<aside class="notes">
+						for example, the file system tree. 
+						- all workers periodically heartbeat to the master to maintain their participation in the cluster. 
+						- The master does not initiate communication with other components; it only interacts with other components by responding to requests.
+					</aside>
 				</section>				
 
 				<section data-markdown>
-					##Worker
-					- responsible for managing local resources allocated to Tachyon. 
-					These resources could be local memory, SSD, or hard disk and are user configurable. 
-					- store data as blocks and serve requests from clients to read or write data by reading or creating new blocks. 
-					However, the worker is only responsible for the data in these blocks; the actual mapping from file to blocks is only stored in the master.
+					<script type="text/template">
+						##Worker
+						- manage local resources allocated to Tachyon. 					
+						- store data as blocks and serve requests from clients to read or write data by reading or creating new blocks. 
+					</script>
+					<aside class="notes">
+						However, the worker is only responsible for the data in these blocks; the actual mapping from file to blocks is only stored in the master.					
+					</aside>					
 				</section>
 				
 				<section data-markdown>
-					##Client
-					- provides users a gateway to interact with the Tachyon servers. 
-					- exposes a file system API. It initiates communication with master to carry out metadata operations 
-					and with workers to read and write data that exist in Tachyon. 
-					Data that exists in the under storage but is not available in Tachyon is accessed directly through an under storage client.
+					<script type="text/template">
+						##Client
+						- provides users a gateway to interact with the Tachyon servers. 
+						- exposes a file system API (Java). 
+						- It initiates communication with master for metadata operations 
+						and with workers to read and write data. 
+					</script>
+					<aside class="notes">
+						Data that exists in the under storage but is not available in Tachyon is accessed directly through an under storage client.
+					</aside>					
 				</section>
 				
 				<section>
@@ -278,31 +243,39 @@ testRdd.persist(StorageLevel.OFF_HEAP)
 					- S3
 					- Swift
 					- GlusterFS			
-					- your own implementation:  
-					```
-					extends tachyon.underfs.UnderFileSystem
-					```
+					- your own implementation:    
+					<small>extends tachyon.underfs.UnderFileSystem</small>
 				</script>
 				</section>	
 				
 				<section data-markdown>
-					##write types
-					- MUST_CACHE: Write the file to Tachyon storage or failing the operation.
-					The data will be written to the highest tier in a worker's storage. 
-					Data will not be persisted to the under storage.
-					- CACHE THROUGH: Write the file synchronously to the under fs, 
-					and also try to write to the highest tier in a worker's Tachyon storage.
-					- THROUGH: Write the file synchronously to the under fs, skipping Tachyon storage.
-					- ASYNC_THROUSH: Write the file asynchronously to the under fs. 
+					<script type="text/template">
+						##write types
+						- MUST_CACHE: Write the file to Tachyon storage or failing the operation.					
+						- CACHE THROUGH: Write the file synchronously to the under fs, 
+						and also try to write Tachyon storage.
+						- THROUGH: Write the file synchronously to the under fs, skipping Tachyon storage.
+						- ASYNC_THROUGH: Write the file asynchronously to the under fs. 
+					</script>					
+					<aside class="notes">
+						The data will be written to the highest tier in a worker's storage. 
+						Data will not be persisted to the under storage.
+					</aside>
 				</section>
 
 
 				<section data-markdown>
-					##Tiered Storage
-					- Tachyon supports tiered storage, which allows Tachyon to manage other storage types in addition to memory. 
-					Using Tachyon with tiered storage allows Tachyon to store more data in the system at once, 
-					since memory capacity may be limited in some deployments.  
-					- With tiered storage, Tachyon automatically manages blocks between all the configured tiers, so users and administrators do not have to manually manage the locations of the data. Users may specify their own data management strategies by implementing allocators and evictors. In addition, manual control over tier storage is possible, see pinning files.					
+					<script type="text/template">
+						##Tiered Storage
+						- Tachyon manages other storage types in addition to memory, 
+						since its capacity may be limited in some deployments.  
+						- Tachyon automatically manages blocks between all the configured tiers, 
+					</script>
+					<aside class="notes">
+						so users and administrators do not have to manually manage the locations of the data. 
+						Users may specify their own data management strategies by implementing allocators and evictors. 
+						In addition, manual control over tier storage is possible, see pinning files.					
+					</aside>					
 				</section>
 				
 				<section data-markdown>
@@ -358,10 +331,7 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 						- Your own implementation 
 						```
 						implements tachyon.worker.block.allocator.Allocator
-						```
-						```
-						tachyon.worker.allocator.class=tachyon.worker.block.allocator.MaxFreeAllocator
-						```
+						```						
 					</script>
 				</section>
 				
@@ -371,12 +341,14 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 						Tachyon uses evictors for deciding which blocks to move to a lower tier, when space needs to be freed. Tachyon supports custom evictors, and implementations include:
 						- `GreedyEvictor`: Evicts arbitrary blocks until the required size is freed.
 						- `LRUEvictor`: Evicts the least-recently-used blocks until the required size is freed.
-						- `LRFUEvictor`: Evicts blocks based on least-recently-used and least-frequently-used with a configurable weight. If the weight is completely biased toward least-recently-used, the behavior will be the same as the LRUEvictor.
-						- `PartialLRUEvictor`: Evicts based on least-recently-used but will choose StorageDir with maximum free space and only evict from that StorageDir.
+						- `LRFUEvictor`: Evicts blocks based on least-recently-used and least-frequently-used with a configurable weight. If the weight is completely biased toward least-recently-used, the behavior will be the same as the LRUEvictor.						
 						- Your own implementation ```implements tachyon.worker.block.evictor```
 						```
 						tachyon.worker.evictor.class=tachyon.worker.block.evictor.LRUEvictor
 						```
+						<aside class="notes">
+							- `PartialLRUEvictor`: Evicts based on least-recently-used but will choose StorageDir with maximum free space and only evict from that StorageDir.
+						</aside>
 					</script>
 				</section>
 				
@@ -396,7 +368,7 @@ tachyon.worker.tieredstore.level1.reserved.ratio=0.1
 				</section>
 				
 				<section data-markdown>
-					##Lineage API
+					##Lineage API (alpha)
 					```
 TachyonLineage tl = TachyonLineage.get();
 // input file paths
@@ -420,10 +392,16 @@ long lineageId = tl.createLineage(inputFiles, outputFiles, job);
 				</Section>
 
 				<section data-markdown>
-					##Transparent naming
-					- object paths are preserved.  
-					 if a user creates a top-level directory Users with subdirectories Alice and Bob, the directory structure and naming is preserved in the underlying storage system (e.g. HDFS or S3)
-					- Tachyon transparently discovers content present in the underlying storage system which was not created through Tachyon. For instance, if the underlying storage system contains a directory Data with files Reports and Sales, all of which were not created through Tachyon, their metadata will be loaded into Tachyon the first time they are accessed 
+					<script type="text/template">
+						##Transparent naming
+						- object paths are replicated in under fs.  						 
+						- Files in the underfs are transparently discovered even if they were not created through Tachyon  
+						their metadata will be loaded into Tachyon the first time they are accessed 
+					</script>
+					<aside class="notes">
+						if a user creates a top-level directory Users with subdirectories Alice and Bob, the directory structure and naming is preserved in the underlying storage system (e.g. HDFS or S3)
+						- Tachyon transparently discovers content present in the underlying storage system which was not created through Tachyon. For instance, if the underlying storage system contains a directory Data with files Reports and Sales, all of which were not created through Tachyon, their metadata will be loaded into Tachyon the first time they are accessed 
+					</aside>
 				</section>
 				<section>
 					<h2>Unified Namespace</h2>
@@ -452,8 +430,56 @@ tachyon.shell.TfsShell copyFromLocal icla.pdf /
 ```					
 				</section>
 				
+				<section>
+					<h2>ex. spark memory management</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">Temporary data and block manager are in the same process</li>
+							<li class="fragment">GC involved in both of them</li>
+							<li class="fragment">Share data between jobs using fs</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/hdfs-s3.png"></img></div>						
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">Execution engine and storage engine are different process</li>
+							<li class="fragment">GC involved only in execution engine</li>
+							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/tachyon-blocks.png"></img></div>
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+					<pre><code data-trim contenteditable>
+						def persist(newLevel: StorageLevel): this.type
+					</code></pre>
+					<pre><code data-trim contenteditable>
+						class StorageLevel private(
+private var _useDisk: Boolean,
+private var _useMemory: Boolean,
+private var _useOffHeap: Boolean,
+private var _deserialized: Boolean,
+private var _replication: Int = 1)
+					</code></pre>
+					<pre class="fragment"><code data-trim contenteditable>
+testRdd.persist(StorageLevel.OFF_HEAP)
+					</code></pre>
+				</section>
+				
 				<section data-markdown>
-					demo report lineage
+					demo off_heap
 				</section>
 				
 				<section data-markdown>
