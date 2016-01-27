@@ -1,0 +1,538 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Enabling Fast Data using in memory-centric computing with Tachyon</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/radicalbit.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h2 style="color: #fff !important;">Enabling Fast Data <br/>using in memory-centric computing with Tachyon</h2>
+					<div class="footer">
+					<p>
+						<small>by Saverio Veltri / <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a></small>
+					</p>
+				</div>				
+				</section>
+
+				<section data-markdown style="font-size: 0.9em">
+					<script type="text/template">
+						## Who am I?
+						#### Saverio Veltri
+
+						- Computer science M.Sc. (Polimi)
+
+						- 8 years experience (java, scala, big data)
+
+						- Software Engineer (Java / Scala) @ <a target="_blank" href="http://www.radicalbit.io">Radicalbit.io</a>
+						
+						- Tachyon Contributor
+						
+						- <a href="https://www.linkedin.com/in/saveveltri" target="_blank">/in/saveveltri</a>
+						
+						- <a target="_blank" href="http://twitter.com/save_veltri">@save_veltri</a>  
+						
+						-  <a target="_blank" href="https://github.com/saveveltri/">github.com/saveveltri/</a>
+						
+						- <a target="_blank" href="https://twitter.com/weareradicalbit">@weareradicalbit</a>
+
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##Fast Data: What And Why
+						- What  
+						The evolution of Big Data (Volume, Velocity, Variety, Veracity) with focus on streaming technologies capable of delivering, processing, analyzing and storing events as fast as they come in. In Real Time.
+						- Why  
+						Fast data gives organizations the ability to test, experiment and fail forward faster, by cycling through
+						these tests at a higher speed, in order to learn and succeed quicker
+					</script>
+				</section>
+
+				<section data-markdown style="font-size: 0.8em">
+					<script type="text/template">
+					##FAST DATA NON FUNCTIONAL REQUIREMENTS
+					- DATA SOURCE AND DATA SYNC CONNECTORS  
+						Read, Write and Combine multiple heterogeneous data sources or data destination via a common interface.
+					- BATCH AND PIPELINE PROCESSIONG  
+						Non continuous (non-realtime) processing of massive amount of data from start to completition
+					- REAL TIME STREAMING  
+						Process AND Aggregate real time events, data streams or sensor data
+					- OLAP PROCESSING  
+						Support for analytical/information processing involving complext queries and aggregations
+					- IN-MEMORY PROCESSING  <!-- .element: class="fragment highlight-red" -->
+						Use memory for speed, staging and sharing data across jobs
+					- DISTRIBUTED INTENSIVE I/O  
+						Support for fast, intensive and scalable read and writes					
+				  </script>
+					<aside class="notes">
+					</aside>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						## Why IN MEMORY PROCESSING
+						- Pros
+							- Cost / capacity of Memory is lower and lower, which makes it possible to handle huge size of data in memory
+							- Throughput of RAM is increasing exponentially
+							- Many computation frameworks (e.g. Spark and Flink) leverage memory
+						- Cons
+							- GC
+							- Data sharing across frameworks
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##IN MEMORY PROCESSING: throughput
+						<img width="60%" height="60%" data-src="images/memory_throughput.jpg">
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##IN MEMORY PROCESSING: Cost
+						<img width="60%" height="60%" data-src="images/memory_cost.png">
+					</script>
+				</section>
+				
+				<section data-markdown style="font-size: 0.9em">		
+					<script type="text/template">			
+						##IN MEMORY PROCESSING: Known Problems
+						- Garbage Collector:  <!-- .element: class="fragment" -->
+							dealing with heap brings also Garbace collector which can slow jobs or even cause failures <!-- .element: class="fragment" -->
+						- Data sharing across frameworks:  <!-- .element: class="fragment" -->
+							objects in heap must be serialized and deserialized somehow in order to be shared across frameworks <!-- .element: class="fragment" -->
+						- Fault Tolerance (replication ?) <!-- .element: class="fragment" -->
+						- What if data does not fit memory size? <!-- .element: class="fragment" -->
+					</script>
+				</section>
+
+				<!-- <section data-markdown>
+					##spark job server
+					The Spark Job Server provides a RESTful frontend for the submission and management of Apache Spark jobs. It facilitates sharing of jobs and RDD data in a single context, but can also manage standalone jobs. Job history and configuration is persisted.
+				</section> -->
+	
+				<section>
+					<h2>Tachyon</h2>
+					<blockquote>
+						&ldquo;Tachyon is a memory-centric distributed storage system 
+						enabling reliable data sharing at memory-speed across cluster frameworks.&rdquo;
+					</blockquote>					
+				</section>
+				
+				<section>
+					<h2>AmpLab BDAS</h2>
+					<blockquote>
+						&ldquo;BDAS, the Berkeley Data Analytics Stack, is an open source software stack that integrates software 
+						components being built by the AMPLab to make sense of Big Data.&rdquo;
+					</blockquote>
+				</section>
+				
+				<section>
+					<h2>AmpLab BDAS</h2>
+					<img width="90%" height="90%" data-src="images/bdass.png">
+				</section>
+
+				<section>
+					<section>
+						<h2>Tachyon architecture</h2>
+						<img width="60%" height="60%" data-src="images/tachyon_architecture.png">
+					</section>
+					<section data-markdown>
+						<script type="text/template">
+							##Zookeeper
+							- Zookeeper is a frameword used to achieve fault tolerance; a leader node is elected every time cluster is started up.
+							<img width="80%" height="80%" data-src="images/zookeeper_arch.png">
+						</script>
+					</section>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##Master
+						- Manage the global metadata of the system
+						- Clients endpoint for reading or modifying this metadata. 
+						- all workers periodically heartbeat to the master
+					</script>
+					<aside class="notes">
+						for example, the file system tree. 
+						- all workers periodically heartbeat to the master to maintain their participation in the cluster. 
+						- The master does not initiate communication with other components; it only interacts with other components by responding to requests.
+					</aside>
+				</section>				
+
+				<section data-markdown>
+					<script type="text/template">
+						##Worker
+						- manage local resources allocated to Tachyon. 					
+						- store data as blocks and serve requests from clients to read or write data by reading or creating new blocks. 
+					</script>
+					<aside class="notes">
+						However, the worker is only responsible for the data in these blocks; the actual mapping from file to blocks is only stored in the master.					
+					</aside>					
+				</section>
+				
+				<section data-markdown>
+					<script type="text/template">
+						##Client
+						- provides users a gateway to interact with the Tachyon servers. 
+						- exposes a file system API (Java). 
+						- It initiates communication with master for metadata operations 
+						and with workers to read and write data. 
+					</script>
+					<aside class="notes">
+						Data that exists in the under storage but is not available in Tachyon is accessed directly through an under storage client.
+					</aside>					
+				</section>
+				
+				<section>
+					<h2>Tachyon architecture</h2>
+					<img width="80%" height="80%" data-src="images/tachyon-system-architecture.jpg">
+				</section>
+				
+				<section data-markdown>
+					##Storage types
+					- Tachyon Storage  
+						- multi layer (tiered storage) for storing user files 
+						- may be volatile
+						- accessible by schema tachyon://[path]
+					- Underfs storage: 3rd party file system used for persisting tachyon journal, lineage and eventually for user files sync 
+				</section>
+				
+				<section data-markdown>
+					<script type="text/template">
+					##underfs
+					Tachyon relys on some other storage system to safely store metadata and user data (if configured)  
+					Supported file system:
+					- Local
+					- HDFS
+					- S3
+					- Swift
+					- GlusterFS			
+					- your own implementation:    
+					<small>extends tachyon.underfs.UnderFileSystem</small>
+				</script>
+				</section>	
+				
+				<section data-markdown>
+					<script type="text/template">
+						##write types
+						- MUST_CACHE: Write the file to Tachyon storage or failing the operation.					
+						- CACHE THROUGH: Write the file synchronously to the under fs, 
+						and also try to write Tachyon storage.
+						- THROUGH: Write the file synchronously to the under fs, skipping Tachyon storage.
+						- ASYNC_THROUGH: Write the file asynchronously to the under fs. 
+					</script>					
+					<aside class="notes">
+						The data will be written to the highest tier in a worker's storage. 
+						Data will not be persisted to the under storage.
+					</aside>
+				</section>
+
+
+				<section data-markdown>
+					<script type="text/template">
+						##Tiered Storage
+						- Tachyon manages other storage types in addition to memory, 
+						since its capacity may be limited in some deployments.  
+						- Tachyon automatically manages blocks between all the configured tiers
+					</script>
+					<aside class="notes">
+						so users and administrators do not have to manually manage the locations of the data. 
+						Users may specify their own data management strategies by implementing allocators and evictors. 
+						In addition, manual control over tier storage is possible, see pinning files.					
+					</aside>					
+				</section>
+				
+				<section data-markdown>
+					<script type="text/template">
+						##Tiered Storage
+						Tiers are fully configurable; here a typical scenario 
+						<img width="80%" height="80%" data-src="images/tiered.png">
+					</script>
+				</section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##Configuring tiered storage
+						<pre><code class="scala" data-trim contenteditable>
+tachyon.worker.tieredstore.level.max
+tachyon.worker.tieredstore.level{x}.alias
+tachyon.worker.tieredstore.level{x}.dirs.quota
+tachyon.worker.tieredstore.level{x}.dirs.path
+tachyon.worker.tieredstore.level{x}.reserved.ratio
+						</code></pre>
+						<pre><code class="scala fragment" data-trim contenteditable>
+tachyon.worker.tieredstore.level.max=2
+tachyon.worker.tieredstore.level0.alias=MEM
+tachyon.worker.tieredstore.level0.dirs.path=/mnt/ramdisk
+tachyon.worker.tieredstore.level0.dirs.quota=100GB
+tachyon.worker.tieredstore.level0.reserved.ratio=0.2
+tachyon.worker.tieredstore.level1.alias=HDD
+tachyon.worker.tieredstore.level1.dirs.path=/mnt/hdd1,/mnt/hdd2,/mnt/hdd3
+tachyon.worker.tieredstore.level1.dirs.quota=2TB,5TB,500GB
+tachyon.worker.tieredstore.level1.reserved.ratio=0.1
+						</code></pre>				
+					</script>
+				</section>
+
+				<section data-markdown>
+					##Writing Data
+					When a user writes a new block, it is written to the top tier by default (a custom allocator can be used if the default behavior is not desired). If there is not enough space for the block in the top tier, then the evictor is triggered in order to free space for the new block.
+				</section>
+				
+				<section data-markdown>
+					##Reading Data
+					Tachyon will simply read the block from where it is already stored. If Tachyon is configured with multiple tiers, then the block will not be necessarily read from the top tier, since it could have been moved to a lower tier transparently.					
+				</section>
+				
+				<section data-markdown>
+					##Block Promotion
+					Reading data with `TachyonStorageType.PROMOTE` configuration will ensure the data is first transferred to the top tier before it is read from the worker.  
+					This can also be used as a data management strategy by explicitly moving hot data to higher tiers.
+				</section>
+
+				<section data-markdown style="font-size: 0.8em">
+					<script type="text/template">
+						##Allocators
+						Tachyon uses allocators for choosing locations for writing new blocks. Tachyon has a framework for customized allocators, but there are a few default implementations of allocators. Here are the existing allocators in Tachyon:
+						- `GreedyAllocator`: Allocates the new block to the first storage directory that has sufficient space.
+						- `MaxFreeAllocator`: Allocates the block in the storage directory with most free space.
+						- `RoundRobinAllocator` Allocates the block in the highest tier with space, the storage directory is chosen through round robin.
+						- Your own implementation 
+						```
+						implements tachyon.worker.block.allocator.Allocator
+						```						
+					</script>
+				</section>
+				
+				<section data-markdown style="font-size: 0.8em">
+					<script type="text/template">
+						##Evictors
+						Tachyon uses evictors for deciding which blocks to move to a lower tier, when space needs to be freed. Tachyon supports custom evictors, and implementations include:
+						- `GreedyEvictor`: Evicts arbitrary blocks until the required size is freed.
+						- `LRUEvictor`: Evicts the least-recently-used blocks until the required size is freed.
+						- `LRFUEvictor`: Evicts blocks based on least-recently-used and least-frequently-used with a configurable weight. If the weight is completely biased toward least-recently-used, the behavior will be the same as the LRUEvictor.						
+						- Your own implementation ```implements tachyon.worker.block.evictor```
+						```
+						tachyon.worker.evictor.class=tachyon.worker.block.evictor.LRUEvictor
+						```
+						<aside class="notes">
+							- `PartialLRUEvictor`: Evicts based on least-recently-used but will choose StorageDir with maximum free space and only evict from that StorageDir.
+						</aside>
+					</script>
+				</section>
+				
+				<section data-markdown>
+					##Lineage
+					Tachyon can achieve high throughput writes and reads, without compromising fault-tolerance by using Lineage
+					- lost output is recovered by re-executing the jobs that created the output.
+					- applications write output into memory, and Tachyon periodically checkpoints the output into the under file system in an asynchronous way. 
+					In case of failures, Tachyon launches job recomputation to restore the lost files. 
+					Lineage assumes that jobs are deterministic.
+				</section>
+				
+				<section>
+					<h2>lineage</h2>
+					<img width="70%" height="70%" data-src="images/tachyon-lineage.png">
+					<img class="fragment" width="70%" height="70%" data-src="images/tachyon-lineage2.jpg">
+				</section>
+				
+				<section data-markdown>
+					##Lineage API (alpha)
+					```
+TachyonLineage tl = TachyonLineage.get();
+// input file paths
+TachyonURI input1 = new TachyonURI("/inputFile1");
+TachyonURI input2 = new TachyonURI("/inputFile2");
+List<TachyonURI> inputFiles = Lists.newArrayList(input1, input2);
+// output file paths
+TachyonURI output = new TachyonURI("/outputFile");
+List<TachyonURI> outputFiles = Lists.newArrayList(output);
+// command-line job
+JobConf conf = new JobConf("/tmp/recompute.log");
+CommandLineJob job = new CommandLineJob("my-spark-job.sh", conf);
+long lineageId = tl.createLineage(inputFiles, outputFiles, job);
+					```
+				</section>
+				
+				<section>
+					<h2>Transparent Naming</h2>
+					<p>Transparent naming maintains an identity between the Tachyon namespace and the underlying storage system namespace.</p>
+					<img width="70%" height="70%" data-src="images/transparent.png">
+				</Section>
+
+				<section data-markdown>
+					<script type="text/template">
+						##Transparent naming
+						- object paths are replicated in under fs.  						 
+						- Files in the underfs are transparently discovered even if they were not created through Tachyon  
+						their metadata will be loaded in memory the first time they are accessed 
+					</script>
+					<aside class="notes">
+						if a user creates a top-level directory Users with subdirectories Alice and Bob, the directory structure and naming is preserved in the underlying storage system (e.g. HDFS or S3)
+						- Tachyon transparently discovers content present in the underlying storage system which was not created through Tachyon. For instance, if the underlying storage system contains a directory Data with files Reports and Sales, all of which were not created through Tachyon, their metadata will be loaded into Tachyon the first time they are accessed 
+					</aside>
+				</section>
+				<section>
+					<h2>Unified Namespace</h2>
+					- Tachyon provides a mounting API that makes it possible to use Tachyon to access data across multiple data sources.
+					<img width="80%" height="80%" data-src="images/unified.png">
+					<pre><code>
+bool mount(String tachyonPath, String ufsPath);
+bool unmount(String tachyonPath);
+					</code></pre>
+				</section>
+				
+				<section data-markdown>
+					##Tachyon shell
+					- provides basic file system operations (ls, rm, cat, mv, tail, touch etc.)
+					- provides "special" operation
+						- persist: persists data from Tachyon storage to the under fs
+						- pin / unpin: marks / unmarsk a file or folder as pinned in Tachyon (i.e. no eviction will be applied)
+						- load: load data from under storage into Tachyon storage
+						- report: marks a file as lost to the Tachyon master. Marking a file as lost will cause the
+							master to schedule a recomputation job to regenerate the file.
+				</section>
+				
+				<section data-markdown>
+					##Remote Write support
+					```
+$ java -cp  
+SW/tachyon-0.8.2/assembly/target/tachyon-assemblies-0.8.2-jar-with-dependencies.jar 
+-Dtachyon.master.hostname=backpressure-master 
+tachyon.shell.TfsShell copyFromLocal icla.pdf /
+```					
+				</section>
+				
+				<section>
+					<h2>ex. spark memory management</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">Temporary data and block manager are in the same spark job</li>
+							<li class="fragment">GC involved in both of them</li>
+							<li class="fragment">Share data between jobs using file system</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/hdfs-s3.png"></img></div>						
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+						<div style="position:absolute; left:1em;"><img data-src="images/spark-tasks.png"></img></div>
+						<p class="fragment small" style="position:absolute; top:2.7em; left:15em;">Execution engine</p>
+						<p class="fragment small" style="position:absolute; top:4.2em; left:15em;">Storage engine</p>						
+										
+						<ul style="position:absolute; top:10em; left:1em;">
+							<li class="fragment">storage engine stores data in a different process</li>
+							<li class="fragment">GC involved only in execution engine</li>
+							<li class="fragment">Share data between jobs using Tachyon at memory speed</li>
+						</ul>
+
+						<div class="fragment" style="position:absolute; top:6.5em; left:2em;"><img data-src="images/tachyon-blocks.png"></img></div>
+				</section>
+				
+				<section>
+					<h2>ex. spark off_heap storage</h2>
+					<pre><code data-trim contenteditable>
+						def persist(newLevel: StorageLevel): this.type
+					</code></pre>
+					<pre><code data-trim contenteditable>
+						class StorageLevel private(
+private var _useDisk: Boolean,
+private var _useMemory: Boolean,
+private var _useOffHeap: Boolean,
+private var _deserialized: Boolean,
+private var _replication: Int = 1)
+					</code></pre>
+					<pre class="fragment"><code data-trim contenteditable>
+testRdd.persist(StorageLevel.OFF_HEAP)
+					</code></pre>
+				</section>
+				
+				<section data-markdown>
+					###demo
+				</section>
+				
+				<section data-markdown>
+					#Q &amp; A ?
+				</section>
+				
+				<section data-markdown>
+					#THANK YOU!
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+				slideNumber: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
